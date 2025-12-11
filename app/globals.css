@@ -120,3 +120,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Fix para teclado virtual em dispositivos móveis */
+@supports (height: 100dvh) {
+  .h-dvh {
+    height: 100dvh;
+  }
+}
+
+/* Garantir que o input seja visível quando o teclado abre */
+@media screen and (max-width: 768px) {
+  input:focus {
+    scroll-margin-bottom: 100px;
+  }
+}

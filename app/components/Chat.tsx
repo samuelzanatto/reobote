@@ -45,6 +45,34 @@ export default function Chat({ leadData, onFinish }: ChatProps) {
     scrollToBottom();
   }, [messages]);
 
+  // Lidar com o teclado virtual em dispositivos móveis
+  useEffect(() => {
+    const handleResize = () => {
+      // Força o scroll para o final quando o viewport muda (teclado abre/fecha)
+      if (document.activeElement === inputRef.current) {
+        setTimeout(() => {
+          inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    };
+
+    // Usar visualViewport API se disponível (melhor suporte para teclado virtual)
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+      return () => window.visualViewport?.removeEventListener('resize', handleResize);
+    }
+
+    return () => {};
+  }, []);
+
+  // Scroll para o input quando ele recebe foco (teclado abre)
+  const handleInputFocus = () => {
+    setTimeout(() => {
+      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      scrollToBottom();
+    }, 300);
+  };
+
   // Função para calcular delay humanizado baseado no tamanho da mensagem
   const getHumanDelay = (text: string): number => {
     // Simula ~40-60 palavras por minuto de digitação
@@ -386,6 +414,7 @@ export default function Chat({ leadData, onFinish }: ChatProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
+              onFocus={handleInputFocus}
               placeholder="Digite sua mensagem..."
               disabled={isLoading}
               className={clsx(
