@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Chat from '../components/Chat';
 
 interface LeadData {
@@ -12,7 +12,7 @@ interface LeadData {
   message: string;
 }
 
-export default function ChatPage() {
+function ChatContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [leadData, setLeadData] = useState<LeadData | null>(null);
@@ -58,7 +58,11 @@ export default function ChatPage() {
   }, []);
 
   if (isLoading || !leadData) {
-    return null;
+    return (
+      <div className="w-screen h-dvh bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+      </div>
+    );
   }
 
   const handleFinish = () => {
@@ -70,5 +74,17 @@ export default function ChatPage() {
     <div className="w-screen h-dvh bg-slate-900 flex items-center justify-center md:p-8">
       <Chat leadData={leadData} onFinish={handleFinish} />
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="w-screen h-dvh bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+      </div>
+    }>
+      <ChatContent />
+    </Suspense>
   );
 }
