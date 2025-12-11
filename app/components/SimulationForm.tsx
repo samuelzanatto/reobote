@@ -155,8 +155,8 @@ export default function SimulationForm() {
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger 
                   className={clsx(
-                    'w-full px-4 py-2.5 md:py-3 h-auto border rounded-lg bg-slate-800 text-gray-100 text-sm md:text-base',
-                    'focus:outline-none focus:ring-2 focus:ring-offset-0 transition',
+                    'w-full px-4 py-2.5 md:py-3 border rounded-lg bg-slate-800 text-gray-100 text-sm md:text-base',
+                    'focus:outline-none focus:ring-2 focus:ring-offset-0 transition h-auto! flex items-center',
                     errors.creditType
                       ? 'border-red-500 focus:ring-red-500'
                       : 'border-slate-700 focus:ring-blue-500'
@@ -166,16 +166,16 @@ export default function SimulationForm() {
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
                   <SelectItem value="AUTO" className="text-gray-100 focus:bg-slate-700 focus:text-white cursor-pointer">
-                    🚗 Consórcio de Automóvel
+                    Consórcio de Automóvel
                   </SelectItem>
                   <SelectItem value="IMÓVEL" className="text-gray-100 focus:bg-slate-700 focus:text-white cursor-pointer">
-                    🏠 Consórcio de Imóvel
+                    Consórcio de Imóvel
                   </SelectItem>
                   <SelectItem value="NEGÓCIO" className="text-gray-100 focus:bg-slate-700 focus:text-white cursor-pointer">
-                    💼 Consórcio para Negócio
+                    Consórcio para Negócio
                   </SelectItem>
                   <SelectItem value="EDUCAÇÃO" className="text-gray-100 focus:bg-slate-700 focus:text-white cursor-pointer">
-                    📚 Consórcio para Educação
+                    Consórcio para Educação
                   </SelectItem>
                 </SelectContent>
               </Select>

@@ -34,6 +34,7 @@ export default function Chat({ leadData, onFinish }: ChatProps) {
   const [classification, setClassification] = useState<{ score: number; priority: string } | null>(null);
   const [hasInterest, setHasInterest] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -45,33 +46,26 @@ export default function Chat({ leadData, onFinish }: ChatProps) {
     scrollToBottom();
   }, [messages]);
 
-  // Lidar com o teclado virtual em dispositivos móveis
+  // Lidar com teclado virtual sem mover o conteúdo, apenas ajustando o espaçamento do input
   useEffect(() => {
-    const handleResize = () => {
-      // Força o scroll para o final quando o viewport muda (teclado abre/fecha)
-      if (document.activeElement === inputRef.current) {
-        setTimeout(() => {
-          inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
-      }
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+
+    const updateOffset = () => {
+      const vv = window.visualViewport;
+      if (!vv) return;
+      const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKeyboardOffset(Math.ceil(offset));
     };
 
-    // Usar visualViewport API se disponível (melhor suporte para teclado virtual)
-    if (typeof window !== 'undefined' && window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleResize);
-      return () => window.visualViewport?.removeEventListener('resize', handleResize);
-    }
+    updateOffset();
+    window.visualViewport.addEventListener('resize', updateOffset);
+    window.visualViewport.addEventListener('scroll', updateOffset);
 
-    return () => {};
+    return () => {
+      window.visualViewport?.removeEventListener('resize', updateOffset);
+      window.visualViewport?.removeEventListener('scroll', updateOffset);
+    };
   }, []);
-
-  // Scroll para o input quando ele recebe foco (teclado abre)
-  const handleInputFocus = () => {
-    setTimeout(() => {
-      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      scrollToBottom();
-    }, 300);
-  };
 
   // Função para calcular delay humanizado baseado no tamanho da mensagem
   const getHumanDelay = (text: string): number => {
@@ -406,7 +400,10 @@ export default function Chat({ leadData, onFinish }: ChatProps) {
 
       {/* Input de Mensagem */}
       {!whatsappLink && !classification && (
-        <div className="bg-slate-900 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-3 border-t border-slate-700 shrink-0">
+        <div
+          className="bg-slate-900 px-4 py-3 md:pb-3 border-t border-slate-700 shrink-0"
+          style={{ paddingBottom: `calc(0.75rem + env(safe-area-inset-bottom) + ${keyboardOffset}px)` }}
+        >
           <div className="flex gap-2">
             <input
               ref={inputRef}
@@ -414,7 +411,6 @@ export default function Chat({ leadData, onFinish }: ChatProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              onFocus={handleInputFocus}
               placeholder="Digite sua mensagem..."
               disabled={isLoading}
               className={clsx(
